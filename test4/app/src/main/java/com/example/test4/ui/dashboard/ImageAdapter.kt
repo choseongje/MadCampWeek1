@@ -25,9 +25,12 @@ class ImageAdapter(private val context: Context, private val imageIds: List<Int>
         val imageView: ImageView
         if (convertView == null) {
             imageView = ImageView(context)
-            imageView.layoutParams = ViewGroup.LayoutParams(400, 400)
+            val displayMetrics = context.resources.displayMetrics
+            val screenWidth = displayMetrics.widthPixels
+            val itemWidth = screenWidth / 3
+            imageView.layoutParams = ViewGroup.LayoutParams(itemWidth, itemWidth)
             imageView.scaleType = ImageView.ScaleType.CENTER_CROP
-            imageView.setPadding(8, 8, 8, 8)
+            imageView.setPadding(4, 4, 4, 4)
         } else {
             imageView = convertView as ImageView
         }
