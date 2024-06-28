@@ -22,11 +22,4 @@ class ImageDetailFragment : Fragment() {
         return view
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        view.findViewById<Button>(R.id.backButton).setOnClickListener {
-            findNavController().popBackStack()
-        }
-    }
 }
