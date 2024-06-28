@@ -7,7 +7,11 @@ import android.widget.BaseAdapter
 import android.widget.ImageView
 import com.example.test4.R
 
-class ImageAdapter(private val context: Context, private val imageIds: List<Int>) : BaseAdapter() {
+class ImageAdapter(
+    private val context: Context,
+    private val imageIds: List<Int>,
+    private val onImageClick: (Int) -> Unit
+) : BaseAdapter() {
 
     override fun getCount(): Int {
         return imageIds.size
@@ -36,6 +40,10 @@ class ImageAdapter(private val context: Context, private val imageIds: List<Int>
         }
 
         imageView.setImageResource(imageIds[position])
+        imageView.setOnClickListener {
+            onImageClick(imageIds[position])
+        }
+
         return imageView
     }
 }
