@@ -10,21 +10,25 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_marginBottom="20dp"/>
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="128dp"
-        android:layout_height="79dp"
-        android:layout_below="@id/youtube_player_view"
-        android:layout_marginTop="190dp"
-        android:layout_marginBottom="10dp"
-        android:text="0"
-        android:textSize="50sp" />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"/>
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="0"
+            android:textColor="#FFF9F9"
+            android:textSize="80sp" />
+    </FrameLayout>
+
 
 </RelativeLayout>
