@@ -1,24 +1,18 @@
 package com.example.test4.ui.dashboard
 
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.GridView
-import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import com.example.test4.databinding.FragmentDashboardBinding
+import androidx.navigation.fragment.findNavController
 import com.example.test4.R
 
 
 class DashboardFragment : Fragment() {
 
-    private var _binding: FragmentDashboardBinding? = null
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
-    private val binding get() = _binding!!
 
     private val imageIds = listOf(
         R.drawable.image1, R.drawable.image2, R.drawable.image3,
@@ -33,21 +27,21 @@ class DashboardFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        val dashboardViewModel =
-            ViewModelProvider(this).get(DashboardViewModel::class.java)
-
-        _binding = FragmentDashboardBinding.inflate(inflater, container, false)
-        val root: View = binding.root
+    ): View? {
+        val root = inflater.inflate(R.layout.fragment_dashboard, container, false)
         val gridView: GridView = root.findViewById(R.id.gridView)
-        val adapter = ImageAdapter(requireContext(), imageIds)
+        val adapter = ImageAdapter(requireContext(), imageIds) {
+            imageId -> onImageClick(imageId)
+        }
         gridView.adapter = adapter
 
         return root
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    private fun onImageClick(imageId: Int){
+        val bundle = Bundle().apply {
+            putInt("image_id", imageId)
+        }
+        findNavController().navigate(R.id.action_navigation_dashboard_to_imageDetailFragment, bundle)
     }
 }
