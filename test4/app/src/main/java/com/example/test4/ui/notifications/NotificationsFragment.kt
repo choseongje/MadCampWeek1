@@ -57,13 +57,13 @@ class NotificationsFragment : Fragment() {
         val textView: TextView = binding.textView
 
         imageView.setImageResource(images[currentIndex])
-        textView.text = "  $currentIndex" // 초기화 시 인덱스 설정
+        textView.text = "$currentIndex" // 초기화 시 인덱스 설정
         imageView.setOnClickListener {
             // 다음 이미지로 전환
             currentIndex = (currentIndex + 1)
             imageView.setImageResource(images[currentIndex % images.size])
             // 텍스트 뷰 업데이트
-            textView.text = "   $currentIndex"
+            textView.text = "$currentIndex"
         }
 
         return root
