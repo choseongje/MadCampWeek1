@@ -5,16 +5,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.test4.R
 
 class ContactAdapter(private val contacts: MutableList<Contact>) : RecyclerView.Adapter<ContactAdapter.ContactViewHolder>(){
 
-    class ContactViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val nameTextView: TextView = itemView.findViewById(android.R.id.text1)
-        val phoneTextView: TextView = itemView.findViewById(android.R.id.text2)
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(android.R.layout.simple_list_item_2, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.contact_item, parent, false)
         return ContactViewHolder(view)
     }
 
@@ -23,6 +19,15 @@ class ContactAdapter(private val contacts: MutableList<Contact>) : RecyclerView.
         holder.nameTextView.text = contact.name
         holder.phoneTextView.text = contact.phoneNumber
     }
+
+    class ContactViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val nameTextView: TextView = itemView.findViewById(R.id.nameTextView)
+        val phoneTextView: TextView = itemView.findViewById(R.id.phoneTextView)
+    }
+
+
+
+
 
     override fun getItemCount(): Int = contacts.size
 
