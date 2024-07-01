@@ -1,6 +1,7 @@
 package com.example.test4.ui.dashboard
 
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
@@ -9,16 +10,16 @@ import com.example.test4.R
 
 class ImageAdapter(
     private val context: Context,
-    private val imageIds: List<Int>,
-    private val onImageClick: (Int) -> Unit
+    private val imagePaths: List<String>,
+    private val onImageClick: (String) -> Unit
 ) : BaseAdapter() {
 
     override fun getCount(): Int {
-        return imageIds.size
+        return imagePaths.size
     }
 
     override fun getItem(position: Int): Any {
-        return imageIds[position]
+        return imagePaths[position]
     }
 
     override fun getItemId(position: Int): Long {
@@ -39,9 +40,11 @@ class ImageAdapter(
             imageView = convertView as ImageView
         }
 
-        imageView.setImageResource(imageIds[position])
+        val imagePath = imagePaths[position]
+        val bitmap = BitmapFactory.decodeFile(imagePath)
+        imageView.setImageBitmap(bitmap)
         imageView.setOnClickListener {
-            onImageClick(imageIds[position])
+            onImageClick(imagePaths[position])
         }
 
         return imageView

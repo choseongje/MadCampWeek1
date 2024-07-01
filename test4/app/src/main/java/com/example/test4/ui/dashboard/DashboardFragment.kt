@@ -1,47 +1,210 @@
 package com.example.test4.ui.dashboard
 
-
+import android.Manifest
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
+import android.provider.Settings
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.GridView
+import android.widget.ImageView
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import com.example.test4.R
-
+import com.google.android.material.snackbar.Snackbar
+import org.json.JSONArray
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.OutputStream
 
 class DashboardFragment : Fragment() {
 
+    private lateinit var gridView: GridView
+    private lateinit var imageAdapter: ImageAdapter
+    private val imageList = ArrayList<String>()
+    private lateinit var currentPhotoUri: Uri
 
-    private val imageIds = listOf(
-        R.drawable.image1, R.drawable.image2, R.drawable.image3,
-        R.drawable.image4, R.drawable.image5, R.drawable.image6,
-        R.drawable.image7, R.drawable.image8, R.drawable.image9,
-        R.drawable.image1, R.drawable.image2, R.drawable.image3,
-        R.drawable.image4, R.drawable.image5, R.drawable.image6,
-        R.drawable.image7, R.drawable.image8, R.drawable.image9
-    )
+    private val selectPhotoLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                result.data?.data?.let { uri ->
+                    Log.d("DashboardFragment", "Photo selected: $uri")
+                    val bitmap = getBitmapFromUri(uri)
+                    bitmap?.let {
+                        val path = saveToInternalStorage(it)
+                        imageList.add(path)
+                        imageAdapter.notifyDataSetChanged()
+                        saveImageList()
+                    }
+                }
+            } else {
+                Log.d("DashboardFragment", "Photo selection failed or canceled")
+            }
+        }
+
+    private val requestPermissionLauncher: ActivityResultLauncher<Array<String>> =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            if (permissions.all { it.value == true }) {
+                Log.d("DashboardFragment", "Permissions granted")
+                openGallery()
+            } else {
+                Log.d("DashboardFragment", "Permissions not granted")
+                permissions.forEach { (permission, granted) ->
+                    Log.d("DashboardFragment", "Permission: $permission, Granted: $granted")
+                }
+                showPermissionDeniedSnackbar()
+            }
+        }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val root = inflater.inflate(R.layout.fragment_dashboard, container, false)
-        val gridView: GridView = root.findViewById(R.id.gridView)
-        val adapter = ImageAdapter(requireContext(), imageIds) {
-            imageId -> onImageClick(imageId)
-        }
-        gridView.adapter = adapter
+        val view = inflater.inflate(R.layout.fragment_dashboard, container, false)
 
-        return root
+        gridView = view.findViewById(R.id.gridview)
+        imageAdapter = ImageAdapter(requireContext(), imageList) { imagePath ->
+            // 이미지 클릭 시 처리할 내용
+        }
+        gridView.adapter = imageAdapter
+
+        loadImageList()
+
+        val btnOpenGallery: Button = view.findViewById(R.id.btn_open_gallery)
+        btnOpenGallery.setOnClickListener {
+            Log.d("DashboardFragment", "Gallery button clicked")
+            if (checkPermissions()) {
+                Log.d("DashboardFragment", "Permissions granted, opening gallery")
+                openGallery()
+            } else {
+                Log.d("DashboardFragment", "Permissions not granted, requesting permissions")
+            }
+        }
+
+        return view
     }
 
-    private fun onImageClick(imageId: Int){
-        val bundle = Bundle().apply {
-            putInt("image_id", imageId)
+    override fun onResume() {
+        super.onResume()
+        gridView.viewTreeObserver.addOnGlobalLayoutListener {
+            for (i in 0 until gridView.childCount) {
+                val view = gridView.getChildAt(i)
+                val imageView: ImageView? = view?.findViewById(R.id.image_view)
+                imageView?.layoutParams?.height = imageView?.width ?: 0
+            }
         }
-        findNavController().navigate(R.id.action_navigation_dashboard_to_imageDetailFragment, bundle)
+    }
+
+    private fun checkPermissions(): Boolean {
+        val permissionsNeeded = when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+            else -> arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
+
+        val permissionsToRequest = permissionsNeeded.filter {
+            ContextCompat.checkSelfPermission(requireContext(), it) != PackageManager.PERMISSION_GRANTED
+        }
+
+        return if (permissionsToRequest.isNotEmpty()) {
+            Log.d("DashboardFragment", "Requesting permissions: $permissionsToRequest")
+            requestPermissionLauncher.launch(permissionsToRequest.toTypedArray())
+            false
+        } else {
+            true
+        }
+    }
+
+    private fun openGallery() {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        selectPhotoLauncher.launch(intent)
+    }
+
+    private fun showPermissionDeniedSnackbar() {
+        Snackbar.make(
+            requireView(),
+            "Permissions are required to access photos. Please enable them in settings.",
+            Snackbar.LENGTH_LONG
+        ).setAction("Settings") {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.fromParts("package", requireContext().packageName, null)
+            }
+            startActivity(intent)
+        }.show()
+    }
+
+    private fun saveToInternalStorage(bitmapImage: Bitmap): String {
+        val cw = ContextWrapper(context)
+        val directory = cw.getDir("imageDir", Context.MODE_PRIVATE)
+        val path = File(directory, "${System.currentTimeMillis()}.jpg")
+
+        var fos: OutputStream? = null
+        try {
+            fos = FileOutputStream(path)
+            bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, fos)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            try {
+                fos?.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+        return path.absolutePath
+    }
+
+    private fun getBitmapFromUri(uri: Uri): Bitmap? {
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                val source = ImageDecoder.createSource(requireContext().contentResolver, uri)
+                ImageDecoder.decodeBitmap(source)
+            } else {
+                MediaStore.Images.Media.getBitmap(requireContext().contentResolver, uri)
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    private fun saveImageList() {
+        val sharedPreferences = requireContext().getSharedPreferences("image_list_prefs", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        val jsonArray = JSONArray(imageList)
+        editor.putString("image_list", jsonArray.toString())
+        editor.apply()
+    }
+
+    private fun loadImageList() {
+        val sharedPreferences = requireContext().getSharedPreferences("image_list_prefs", Context.MODE_PRIVATE)
+        val jsonString = sharedPreferences.getString("image_list", null)
+        if (jsonString != null) {
+            val jsonArray = JSONArray(jsonString)
+            imageList.clear()
+            for (i in 0 until jsonArray.length()) {
+                imageList.add(jsonArray.getString(i))
+            }
+            imageAdapter.notifyDataSetChanged()
+        }
+    }
+
+    companion object {
+        private const val REQUEST_PERMISSIONS = 10
     }
 }
