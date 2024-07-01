@@ -19,7 +19,7 @@ import java.io.InputStreamReader
 
 data class Contact(val name: String, val phoneNumber: String)
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(), ContactAdapter.OnContactDeletedListener {
 
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var adapter: ContactAdapter
@@ -43,7 +43,7 @@ class HomeFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(context)
 
         val contacts = loadContactsFromSharedPreferences()
-        adapter = ContactAdapter(contacts)
+        adapter = ContactAdapter(contacts, sharedPreferences)
         recyclerView.adapter = adapter
 
         updateItemCount()
@@ -53,16 +53,18 @@ class HomeFragment : Fragment() {
             onAddButtonClicked()
         }
 
+        adapter.setOnContactDeletedListner(this)
+
         return root
+    }
+
+    override fun onContactDeleted(){
+        updateItemCount()
     }
 
     private fun saveContactToSharedPreferences(contact: Contact) {
         val gson = Gson()
-        val contactListJson = sharedPreferences.getString("contacts", "[]")
-        val contacts: MutableList<Contact> = gson.fromJson(contactListJson, object : TypeToken<MutableList<Contact>>() {}.type)
-
-        contacts.add(contact)
-
+        val contacts = adapter.getContacts()
         val editor = sharedPreferences.edit()
         editor.putString("contacts", gson.toJson(contacts))
         editor.apply()

@@ -25,5 +25,11 @@
         android:textSize="18sp"
         android:gravity="end"/>
 
+    <Button
+        android:id="@+id/deleteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="삭제"
+        android:layout_marginLeft="8dp"/>
 
 </LinearLayout>
