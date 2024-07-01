@@ -1,5 +1,7 @@
 package com.example.test4.ui.home
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -19,6 +21,7 @@ data class Contact(val name: String, val phoneNumber: String)
 
 class HomeFragment : Fragment() {
 
+    private lateinit var sharedPreferences: SharedPreferences
     private lateinit var adapter: ContactAdapter
     private lateinit var itemCountTextView: TextView
     private lateinit var nameEditText: EditText
@@ -30,15 +33,16 @@ class HomeFragment : Fragment() {
     ): View? {
         val root = inflater.inflate(R.layout.fragment_home, container, false)
 
-        itemCountTextView = root.findViewById(R.id.itemCountTextView)
+        sharedPreferences = requireContext().getSharedPreferences("MyContacts", Context.MODE_PRIVATE)
 
+        itemCountTextView = root.findViewById(R.id.itemCountTextView)
         nameEditText = root.findViewById(R.id.nameEditText)
         phoneEditText = root.findViewById(R.id.phoneEditText)
 
         val recyclerView: RecyclerView = root.findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-        val contacts = loadContactsFromJson()
+        val contacts = loadContactsFromSharedPreferences()
         adapter = ContactAdapter(contacts)
         recyclerView.adapter = adapter
 
@@ -52,11 +56,22 @@ class HomeFragment : Fragment() {
         return root
     }
 
-    private fun loadContactsFromJson(): MutableList<Contact> {
-        val inputStream = resources.openRawResource(R.raw.contacts)
-        val reader = InputStreamReader(inputStream)
-        val type = object : TypeToken<List<Contact>>() {}.type
-        return Gson().fromJson(reader, type)
+    private fun saveContactToSharedPreferences(contact: Contact) {
+        val gson = Gson()
+        val contactListJson = sharedPreferences.getString("contacts", "[]")
+        val contacts: MutableList<Contact> = gson.fromJson(contactListJson, object : TypeToken<MutableList<Contact>>() {}.type)
+
+        contacts.add(contact)
+
+        val editor = sharedPreferences.edit()
+        editor.putString("contacts", gson.toJson(contacts))
+        editor.apply()
+    }
+
+    private fun loadContactsFromSharedPreferences(): MutableList<Contact> {
+        val gson = Gson()
+        val contactListJson = sharedPreferences.getString("contacts", "[]")
+        return gson.fromJson(contactListJson, object : TypeToken<MutableList<Contact>>() {}.type)
     }
 
     private fun updateItemCount(){
@@ -69,15 +84,12 @@ class HomeFragment : Fragment() {
         val phone = phoneEditText.text.toString().trim()
 
         if(name.isNotEmpty() && phone.isNotEmpty()){
-            addContact(Contact(name,phone))
+            val contact = Contact(name,phone)
+            adapter.addContact(contact)
+            saveContactToSharedPreferences(contact)
             nameEditText.text.clear()
             phoneEditText.text.clear()
             updateItemCount()
         }
-    }
-
-    private fun addContact(contact: Contact) {
-        adapter.addContact(contact)
-        updateItemCount()
     }
 }
