@@ -2,6 +2,7 @@ package com.example.test4.ui.dashboard
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
@@ -81,7 +82,7 @@ class DashboardFragment : Fragment() {
         imageAdapter = ImageAdapter(requireContext(), imageList, { imagePath ->
             // 이미지 클릭 시 처리할 내용
         }, { imagePath ->
-            deleteImage(imagePath)
+            showDeleteConfirmationDialog(imagePath)
         })
         gridView.adapter = imageAdapter
 
@@ -172,6 +173,21 @@ class DashboardFragment : Fragment() {
             e.printStackTrace()
             null
         }
+    }
+
+    private fun showDeleteConfirmationDialog(imagePath: String) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Delete Image")
+            .setMessage("Are you sure you want to delete this image?")
+            .setPositiveButton("Yes") { dialog, _ ->
+                deleteImage(imagePath)
+                dialog.dismiss()
+            }
+            .setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
     }
 
     private fun deleteImage(imagePath: String) {
