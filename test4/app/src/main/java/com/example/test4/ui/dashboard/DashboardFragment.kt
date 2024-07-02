@@ -178,13 +178,13 @@ class DashboardFragment : Fragment() {
 
     private fun showDeleteConfirmationDialog(imagePath: String) {
         AlertDialog.Builder(requireContext())
-            .setTitle("Delete Image")
-            .setMessage("Are you sure you want to delete this image?")
-            .setPositiveButton("Yes") { dialog, _ ->
+            .setTitle("이미지 삭제")
+            .setMessage("이 이미지를 삭제하겠습니까?")
+            .setPositiveButton("예") { dialog, _ ->
                 deleteImage(imagePath)
                 dialog.dismiss()
             }
-            .setNegativeButton("No") { dialog, _ ->
+            .setNegativeButton("아니오") { dialog, _ ->
                 dialog.dismiss()
             }
             .create()

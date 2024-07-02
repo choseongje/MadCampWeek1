@@ -1,16 +1,18 @@
 package com.example.test4.ui.home
 
+import android.app.AlertDialog
+import android.content.Context
 import android.content.SharedPreferences
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.test4.R
 import com.google.gson.Gson
 
-class ContactAdapter(private val contacts: MutableList<Contact>, private val sharedPreferences: SharedPreferences) : RecyclerView.Adapter<ContactAdapter.ContactViewHolder>(){
+class ContactAdapter(private val contacts: MutableList<Contact>, private val sharedPreferences: SharedPreferences, private val context: Context) : RecyclerView.Adapter<ContactAdapter.ContactViewHolder>(){
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.contact_item, parent, false)
@@ -23,16 +25,22 @@ class ContactAdapter(private val contacts: MutableList<Contact>, private val sha
         holder.phoneTextView.text = contact.phoneNumber
 
         holder.deleteButton.setOnClickListener {
-            deleteContact(position)
+            AlertDialog.Builder(context)
+                .setTitle("연락처 삭제")
+                .setMessage("이 연락처를 삭제하시겠습니까?")
+                .setPositiveButton("예") { dialog, which ->
+                    deleteContact(position)
+                }
+                .setNegativeButton("아니오", null)
+                .show()
         }
     }
 
     inner class ContactViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val nameTextView: TextView = itemView.findViewById(R.id.nameTextView)
         val phoneTextView: TextView = itemView.findViewById(R.id.phoneTextView)
-        val deleteButton: Button = itemView.findViewById(R.id.deleteButton)
+        val deleteButton: ImageButton = itemView.findViewById(R.id.deleteButton)
     }
-
 
     interface OnContactDeletedListener{
         fun onContactDeleted()

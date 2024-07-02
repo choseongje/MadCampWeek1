@@ -1,5 +1,6 @@
 package com.example.test4.ui.home
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -23,9 +24,6 @@ class HomeFragment : Fragment(), ContactAdapter.OnContactDeletedListener {
 
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var adapter: ContactAdapter
-    private lateinit var itemCountTextView: TextView
-    private lateinit var nameEditText: EditText
-    private lateinit var phoneEditText: EditText
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,23 +32,18 @@ class HomeFragment : Fragment(), ContactAdapter.OnContactDeletedListener {
         val root = inflater.inflate(R.layout.fragment_home, container, false)
 
         sharedPreferences = requireContext().getSharedPreferences("MyContacts", Context.MODE_PRIVATE)
-
-        itemCountTextView = root.findViewById(R.id.itemCountTextView)
-        nameEditText = root.findViewById(R.id.nameEditText)
-        phoneEditText = root.findViewById(R.id.phoneEditText)
-
         val recyclerView: RecyclerView = root.findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(context)
 
         val contacts = loadContactsFromSharedPreferences()
-        adapter = ContactAdapter(contacts, sharedPreferences)
+        adapter = ContactAdapter(contacts, sharedPreferences, requireContext())
         recyclerView.adapter = adapter
 
         updateItemCount()
 
         val addButton: Button = root.findViewById(R.id.addButton)
         addButton.setOnClickListener{
-            onAddButtonClicked()
+            showAddContactDialog()
         }
 
         adapter.setOnContactDeletedListner(this)
@@ -78,20 +71,33 @@ class HomeFragment : Fragment(), ContactAdapter.OnContactDeletedListener {
 
     private fun updateItemCount(){
         val cnt = adapter.itemCount
-        itemCountTextView.text = "Count: $cnt"
     }
 
-    private fun onAddButtonClicked(){
-        val name = nameEditText.text.toString().trim()
-        val phone = phoneEditText.text.toString().trim()
 
-        if(name.isNotEmpty() && phone.isNotEmpty()){
-            val contact = Contact(name,phone)
-            adapter.addContact(contact)
-            saveContactToSharedPreferences(contact)
-            nameEditText.text.clear()
-            phoneEditText.text.clear()
-            updateItemCount()
+    private fun showAddContactDialog() {
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("연락처 추가")
+
+        val view = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_add_contact, null)
+        val nameEditText: EditText = view.findViewById(R.id.nameEditText)
+        val phoneEditText: EditText = view.findViewById(R.id.phoneEditText)
+
+        builder.setView(view)
+
+        builder.setPositiveButton("추가") { dialog, which ->
+            val name = nameEditText.text.toString().trim()
+            val phone = phoneEditText.text.toString().trim()
+            if (name.isNotEmpty() && phone.isNotEmpty()) {
+                val contact = Contact(name, phone)
+                adapter.addContact(contact)
+                updateItemCount()
+            }
         }
+
+        builder.setNegativeButton("취소", null)
+
+        val dialog = builder.create()
+        dialog.show()
     }
+
 }
