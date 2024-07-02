@@ -26,6 +26,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.test4.R
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import org.json.JSONArray
 import java.io.File
@@ -88,7 +89,7 @@ class DashboardFragment : Fragment() {
 
         loadImageList()
 
-        val btnOpenGallery: Button = view.findViewById(R.id.btn_open_gallery)
+        val btnOpenGallery: FloatingActionButton = view.findViewById(R.id.btn_open_gallery)
         btnOpenGallery.setOnClickListener {
             Log.d("DashboardFragment", "Gallery button clicked")
             if (checkPermissions()) {
