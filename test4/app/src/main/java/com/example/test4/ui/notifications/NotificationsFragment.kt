@@ -1,17 +1,17 @@
 package com.example.test4.ui.notifications
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.util.Log
 import androidx.fragment.app.Fragment
+import com.example.test4.R
+import com.example.test4.databinding.FragmentNotificationsBinding
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants.PlayerError
-import com.example.test4.databinding.FragmentNotificationsBinding
-import com.example.test4.R
 
 class NotificationsFragment : Fragment() {
 
@@ -23,6 +23,7 @@ class NotificationsFragment : Fragment() {
         R.drawable.cat2
     )
     private var currentIndex = 0
+    private val handler = Handler(Looper.getMainLooper())
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,10 +47,6 @@ class NotificationsFragment : Fragment() {
                 val videoId = "CJkrxF6DiJs" // 유효한 비디오 ID를 사용
                 youTubePlayer.loadVideo(videoId, 0f)
             }
-
-            override fun onError(youTubePlayer: YouTubePlayer, error: PlayerError) {
-                Log.e("YouTubePlayer", "Error occurred: $error")
-            }
         })
     }
 
@@ -62,8 +59,12 @@ class NotificationsFragment : Fragment() {
 
         imageView.setOnClickListener {
             currentIndex = currentIndex + 1
-            imageView.setImageResource(images[currentIndex % 2])
+            imageView.setImageResource(images[1])
             textView.text = currentIndex.toString()
+
+            handler.postDelayed({
+                imageView.setImageResource(images[0])
+            }, 100) // 100ms 후에 이미지 변경
         }
     }
 
