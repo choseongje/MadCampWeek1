@@ -46,6 +46,7 @@ class NotificationsFragment : Fragment() {
             override fun onReady(youTubePlayer: YouTubePlayer) {
                 val videoId = "CJkrxF6DiJs" // 유효한 비디오 ID를 사용
                 youTubePlayer.loadVideo(videoId, 0f)
+                youTubePlayer.mute()
             }
         })
     }
