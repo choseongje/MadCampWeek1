@@ -91,6 +91,7 @@ class HomeFragment : Fragment(), ContactAdapter.OnContactDeletedListener {
             if (name.isNotEmpty() && phone.isNotEmpty()) {
                 val contact = Contact(name, phone)
                 adapter.addContact(contact)
+                saveContactToSharedPreferences(contact)
                 updateItemCount()
             }
         }
