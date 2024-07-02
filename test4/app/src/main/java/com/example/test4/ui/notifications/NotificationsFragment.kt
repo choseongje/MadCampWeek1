@@ -28,6 +28,7 @@ class NotificationsFragment : Fragment() {
     private lateinit var contacts: MutableList<Contact>
     private lateinit var contactAdapter: ContactAdapter
     private var selectedContactName: String? = null
+    private var selectedContact: Contact? = null
 
     private val images = arrayOf(
         R.drawable.cat1,
@@ -51,9 +52,11 @@ class NotificationsFragment : Fragment() {
         contactAdapter = ContactAdapter(contacts, sharedPreferences, requireContext(), this::onContactClick)
 
         selectedContactName = loadSelectedContactNameFromSharedPreferences()
+        selectedContact = contacts.find { it.name == selectedContactName }
 
         setupYouTubePlayer()
         setupImageViewClickListener()
+        updateSelectedContactScore()
 
         return root
     }
@@ -102,18 +105,22 @@ class NotificationsFragment : Fragment() {
             textView.text = currentIndex.toString()
 
             // PopCat 클릭 시 점수 증가
-            selectedContactName?.let { name ->
-                val contact = contacts.find { it.name == name }
-                contact?.let {
-                    it.score += 1
-                    contactAdapter.updateContactScore(it.name, it.score)
-                    saveContactsToSharedPreferences()
-                }
+            selectedContact?.let {
+                it.score += 1
+                contactAdapter.updateContactScore(it.name, it.score)
+                updateSelectedContactScore()
+                saveContactsToSharedPreferences()
             }
 
             handler.postDelayed({
                 imageView.setImageResource(images[0])
             }, 100) // 100ms 후에 이미지 변경
+        }
+    }
+
+    private fun updateSelectedContactScore() {
+        selectedContact?.let {
+            binding.textView.text = "${it.score}"
         }
     }
 

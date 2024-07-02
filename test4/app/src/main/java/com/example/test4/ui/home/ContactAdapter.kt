@@ -23,6 +23,7 @@ class ContactAdapter(
 ) : RecyclerView.Adapter<ContactAdapter.ContactViewHolder>() {
 
     private var selectedContactName: String? = null
+    private var lastClickTime: Long = 0
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.contact_item, parent, false)
@@ -60,11 +61,42 @@ class ContactAdapter(
         }
 
 
+        holder.itemView.setOnClickListener {
+            val clickTime = System.currentTimeMillis()
+            if (clickTime - lastClickTime < 300) {
+                // 더블 클릭 감지
+                showResetScoreDialog(contact)
+            } else {
+                selectedContactName = contact.name
+                onContactClick(contact)
+                notifyDataSetChanged()
+            }
+            lastClickTime = clickTime
+        }
+
         holder.callButton.setOnClickListener {
             val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${contact.phoneNumber}"))
             context.startActivity(intent)
         }
     }
+
+    private fun showResetScoreDialog(contact: Contact) {
+        AlertDialog.Builder(context)
+            .setTitle("점수 초기화")
+            .setMessage("정말로 ${contact.name}의 점수를 초기화하시겠습니까?")
+            .setPositiveButton("예") { dialog, which ->
+                resetContactScore(contact)
+            }
+            .setNegativeButton("아니오", null)
+            .show()
+    }
+
+    private fun resetContactScore(contact: Contact) {
+        contact.score = 0
+        notifyDataSetChanged()
+        saveContactsToSharedPreferences()
+    }
+
 
     override fun getItemCount(): Int = contacts.size
 
