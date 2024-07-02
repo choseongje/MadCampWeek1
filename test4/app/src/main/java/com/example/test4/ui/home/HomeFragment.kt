@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.example.test4.R
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.InputStreamReader
 
 data class Contact(val name: String, val phoneNumber: String)
@@ -41,7 +42,7 @@ class HomeFragment : Fragment(), ContactAdapter.OnContactDeletedListener {
 
         updateItemCount()
 
-        val addButton: Button = root.findViewById(R.id.addButton)
+        val addButton: FloatingActionButton = root.findViewById(R.id.addButton)
         addButton.setOnClickListener{
             showAddContactDialog()
         }
