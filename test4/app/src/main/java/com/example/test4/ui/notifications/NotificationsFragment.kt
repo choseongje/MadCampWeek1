@@ -27,6 +27,7 @@ class NotificationsFragment : Fragment() {
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var contacts: MutableList<Contact>
     private lateinit var contactAdapter: ContactAdapter
+    private var selectedContactName: String? = null
 
     private val images = arrayOf(
         R.drawable.cat1,
@@ -47,7 +48,9 @@ class NotificationsFragment : Fragment() {
 
         sharedPreferences = requireContext().getSharedPreferences("MyContacts", Context.MODE_PRIVATE)
         contacts = loadContactsFromSharedPreferences()
-        contactAdapter = ContactAdapter(contacts, sharedPreferences, requireContext())
+        contactAdapter = ContactAdapter(contacts, sharedPreferences, requireContext(), this::onContactClick)
+
+        selectedContactName = loadSelectedContactNameFromSharedPreferences()
 
         setupYouTubePlayer()
         setupImageViewClickListener()
@@ -59,6 +62,10 @@ class NotificationsFragment : Fragment() {
         val gson = Gson()
         val contactListJson = sharedPreferences.getString("contacts", "[]")
         return gson.fromJson(contactListJson, object : TypeToken<MutableList<Contact>>() {}.type)
+    }
+
+    private fun loadSelectedContactNameFromSharedPreferences(): String? {
+        return sharedPreferences.getString("selected_contact_name", null)
     }
 
     private fun saveContactsToSharedPreferences() {
@@ -95,18 +102,23 @@ class NotificationsFragment : Fragment() {
             textView.text = currentIndex.toString()
 
             // PopCat 클릭 시 점수 증가
-            val contactName = "조성제" // 실제 연락처 이름으로 변경해야 합니다
-            val contact = contacts.find { it.name == contactName }
-            contact?.let {
-                it.score += 1
-                contactAdapter.updateContactScore(contactName, it.score)
-                saveContactsToSharedPreferences()
+            selectedContactName?.let { name ->
+                val contact = contacts.find { it.name == name }
+                contact?.let {
+                    it.score += 1
+                    contactAdapter.updateContactScore(it.name, it.score)
+                    saveContactsToSharedPreferences()
+                }
             }
 
             handler.postDelayed({
                 imageView.setImageResource(images[0])
             }, 100) // 100ms 후에 이미지 변경
         }
+    }
+
+    private fun onContactClick(contact: Contact) {
+        // 필요한 경우 클릭된 연락처에 대한 추가 동작 수행
     }
 
     override fun onDestroyView() {

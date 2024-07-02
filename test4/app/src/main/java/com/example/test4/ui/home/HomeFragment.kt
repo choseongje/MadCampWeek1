@@ -8,18 +8,19 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.example.test4.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import java.io.InputStreamReader
 
-data class Contact(val name: String, val phoneNumber: String, var score:Int = 0)
+data class Contact(
+    val name: String,
+    val phoneNumber: String,
+    var score: Int = 0 // 점수 필드 추가
+)
 
 class HomeFragment : Fragment(), ContactAdapter.OnContactDeletedListener {
 
@@ -37,23 +38,29 @@ class HomeFragment : Fragment(), ContactAdapter.OnContactDeletedListener {
         recyclerView.layoutManager = LinearLayoutManager(context)
 
         val contacts = loadContactsFromSharedPreferences()
-        adapter = ContactAdapter(contacts, sharedPreferences, requireContext())
+        adapter = ContactAdapter(contacts, sharedPreferences, requireContext()) { contact ->
+            onContactSelected(contact)
+        }
         recyclerView.adapter = adapter
 
-        updateItemCount()
+        adapter.setOnContactDeletedListener(this)
 
         val addButton: FloatingActionButton = root.findViewById(R.id.addButton)
-        addButton.setOnClickListener{
+        addButton.setOnClickListener {
             showAddContactDialog()
         }
-
-        adapter.setOnContactDeletedListner(this)
 
         return root
     }
 
-    override fun onContactDeleted(){
-        updateItemCount()
+    override fun onContactDeleted() {
+        // 추가적인 동작 필요시 여기에 작성
+    }
+
+    private fun onContactSelected(contact: Contact) {
+        val editor = sharedPreferences.edit()
+        editor.putString("selected_contact_name", contact.name)
+        editor.apply()
     }
 
     private fun saveContactToSharedPreferences(contact: Contact) {
@@ -69,11 +76,6 @@ class HomeFragment : Fragment(), ContactAdapter.OnContactDeletedListener {
         val contactListJson = sharedPreferences.getString("contacts", "[]")
         return gson.fromJson(contactListJson, object : TypeToken<MutableList<Contact>>() {}.type)
     }
-
-    private fun updateItemCount(){
-        val cnt = adapter.itemCount
-    }
-
 
     private fun showAddContactDialog() {
         val builder = AlertDialog.Builder(requireContext())
@@ -92,7 +94,6 @@ class HomeFragment : Fragment(), ContactAdapter.OnContactDeletedListener {
                 val contact = Contact(name, phone)
                 adapter.addContact(contact)
                 saveContactToSharedPreferences(contact)
-                updateItemCount()
             }
         }
 
@@ -101,5 +102,4 @@ class HomeFragment : Fragment(), ContactAdapter.OnContactDeletedListener {
         val dialog = builder.create()
         dialog.show()
     }
-
 }
