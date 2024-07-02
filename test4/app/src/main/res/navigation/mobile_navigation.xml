@@ -16,17 +16,7 @@
         android:name="com.example.test4.ui.dashboard.DashboardFragment"
         android:label="갤러리"
         tools:layout="@layout/fragment_dashboard">
-        <action
-            android:id="@+id/action_navigation_dashboard_to_imageDetailFragment"
-            app:destination="@id/imageDetailFragment" />
     </fragment>
-
-
-    <fragment
-        android:id="@+id/imageDetailFragment"
-        android:name="com.example.test4.ui.dashboard.ImageDetailFragment"
-        android:label="Image Detail"
-        tools:layout="@layout/fragment_image_detail" />
 
     <fragment
         android:id="@+id/navigation_notifications"
