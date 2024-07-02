@@ -29,6 +29,13 @@
             android:layout_height="wrap_content"
             android:textSize="16sp"
             android:text="Phone" />
+
+        <TextView
+            android:id="@+id/scoreTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="Score: 0" />
     </LinearLayout>
 
     <ImageButton
@@ -36,7 +43,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="삭제"
+        android:contentDescription="전화"
         android:padding="8dp"
         android:src="@drawable/ic_phone_call_36dp" />
 </LinearLayout>

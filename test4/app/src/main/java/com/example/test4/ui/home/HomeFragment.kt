@@ -19,7 +19,7 @@ import com.example.test4.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.InputStreamReader
 
-data class Contact(val name: String, val phoneNumber: String)
+data class Contact(val name: String, val phoneNumber: String, var score:Int = 0)
 
 class HomeFragment : Fragment(), ContactAdapter.OnContactDeletedListener {
 

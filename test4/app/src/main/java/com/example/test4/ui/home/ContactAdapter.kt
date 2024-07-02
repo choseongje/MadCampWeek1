@@ -25,6 +25,7 @@ class ContactAdapter(private val contacts: MutableList<Contact>, private val sha
         val contact = contacts[position]
         holder.nameTextView.text = contact.name
         holder.phoneTextView.text = contact.phoneNumber
+        holder.scoreTextView.text = "Score: ${contact.score}"
 
         holder.itemView.setOnLongClickListener {
             AlertDialog.Builder(context)
@@ -47,6 +48,7 @@ class ContactAdapter(private val contacts: MutableList<Contact>, private val sha
     inner class ContactViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val nameTextView: TextView = itemView.findViewById(R.id.nameTextView)
         val phoneTextView: TextView = itemView.findViewById(R.id.phoneTextView)
+        val scoreTextView: TextView = itemView.findViewById(R.id.scoreTextView)
         val callButton: ImageButton = itemView.findViewById(R.id.callButton)
     }
 
@@ -72,6 +74,15 @@ class ContactAdapter(private val contacts: MutableList<Contact>, private val sha
         notifyItemRemoved(position)
         saveContactsToSharedPreferences()
         listener?.onContactDeleted()
+    }
+
+    fun updateContactScore(name: String, score: Int){
+        val contact = contacts.find { it.name == name}
+        contact?.let{
+            it.score = score
+            notifyDataSetChanged()
+            saveContactsToSharedPreferences()
+        }
     }
 
     fun getContacts(): MutableList<Contact>{
