@@ -78,9 +78,11 @@ class DashboardFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_dashboard, container, false)
 
         gridView = view.findViewById(R.id.gridview)
-        imageAdapter = ImageAdapter(requireContext(), imageList) { imagePath ->
+        imageAdapter = ImageAdapter(requireContext(), imageList, { imagePath ->
             // 이미지 클릭 시 처리할 내용
-        }
+        }, { imagePath ->
+            deleteImage(imagePath)
+        })
         gridView.adapter = imageAdapter
 
         loadImageList()
@@ -97,17 +99,6 @@ class DashboardFragment : Fragment() {
         }
 
         return view
-    }
-
-    override fun onResume() {
-        super.onResume()
-        gridView.viewTreeObserver.addOnGlobalLayoutListener {
-            for (i in 0 until gridView.childCount) {
-                val view = gridView.getChildAt(i)
-                val imageView: ImageView? = view?.findViewById(R.id.image_view)
-                imageView?.layoutParams?.height = imageView?.width ?: 0
-            }
-        }
     }
 
     private fun checkPermissions(): Boolean {
@@ -181,6 +172,16 @@ class DashboardFragment : Fragment() {
             e.printStackTrace()
             null
         }
+    }
+
+    private fun deleteImage(imagePath: String) {
+        val file = File(imagePath)
+        if (file.exists()) {
+            file.delete()
+        }
+        imageList.remove(imagePath)
+        imageAdapter.notifyDataSetChanged()
+        saveImageList()
     }
 
     private fun saveImageList() {

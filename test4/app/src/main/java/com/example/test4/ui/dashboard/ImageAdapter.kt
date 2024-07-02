@@ -11,7 +11,8 @@ import com.example.test4.R
 class ImageAdapter(
     private val context: Context,
     private val imagePaths: List<String>,
-    private val onImageClick: (String) -> Unit
+    private val onImageClick: (String) -> Unit,
+    private val onImageLongClick: (String) -> Unit
 ) : BaseAdapter() {
 
     override fun getCount(): Int {
@@ -43,8 +44,14 @@ class ImageAdapter(
         val imagePath = imagePaths[position]
         val bitmap = BitmapFactory.decodeFile(imagePath)
         imageView.setImageBitmap(bitmap)
+
         imageView.setOnClickListener {
             onImageClick(imagePaths[position])
+        }
+
+        imageView.setOnLongClickListener {
+            onImageLongClick(imagePaths[position])
+            true
         }
 
         return imageView
