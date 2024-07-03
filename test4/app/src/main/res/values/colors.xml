@@ -7,4 +7,12 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+
+    <color name="colorPrimary">#4E342E</color> <!-- 짙은 갈색 -->
+    <color name="colorPrimaryDark">#3E2723</color>
+    <color name="colorAccent">#FFC107</color> <!-- 액센트 색상 (노란색) -->
+    <color name="colorBackground">#EDE7D9</color> <!-- 배경색 (크림색) -->
+    <color name="colorText">#FFFFFF</color> <!-- 텍스트 색상 (흰색) -->
+    <color name="toolbarTextColor">#FFFFFF</color> <!-- 툴바 텍스트 색상 (흰색) -->
 </resources>
