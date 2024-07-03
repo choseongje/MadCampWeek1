@@ -2,13 +2,16 @@ package com.example.test4.ui.home
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
@@ -49,6 +52,29 @@ class HomeFragment : Fragment(), ContactAdapter.OnContactDeletedListener {
         addButton.setOnClickListener {
             showAddContactDialog()
         }
+
+        // ItemTouchHelper를 사용하여 스와이프 동작 구현
+        val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                val contact = adapter.getContacts()[position]
+                if (direction == ItemTouchHelper.RIGHT) {
+                    callContact(contact)
+                } else if (direction == ItemTouchHelper.LEFT) {
+                    showDeleteContactDialog(position, contact)
+                }
+                adapter.notifyItemChanged(position) // 아이템 상태를 복원
+            }
+        })
+        itemTouchHelper.attachToRecyclerView(recyclerView)
 
         return root
     }
@@ -101,5 +127,23 @@ class HomeFragment : Fragment(), ContactAdapter.OnContactDeletedListener {
 
         val dialog = builder.create()
         dialog.show()
+    }
+
+    private fun callContact(contact: Contact) {
+        val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${contact.phoneNumber}"))
+        startActivity(intent)
+    }
+
+    private fun showDeleteContactDialog(position: Int, contact: Contact) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("연락처 삭제")
+            .setMessage("정말로 ${contact.name} 연락처를 삭제하시겠습니까?")
+            .setPositiveButton("예") { dialog, which ->
+                adapter.deleteContact(position)
+            }
+            .setNegativeButton("아니오") { dialog, which ->
+                adapter.notifyItemChanged(position) // 아이템 상태를 복원
+            }
+            .show()
     }
 }

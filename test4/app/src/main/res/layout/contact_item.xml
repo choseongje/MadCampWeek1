@@ -37,13 +37,4 @@
             android:textSize="16sp"
             android:text="Score: 0" />
     </LinearLayout>
-
-    <ImageButton
-        android:id="@+id/callButton"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="전화"
-        android:padding="8dp"
-        android:src="@drawable/ic_phone_call_36dp" />
 </LinearLayout>

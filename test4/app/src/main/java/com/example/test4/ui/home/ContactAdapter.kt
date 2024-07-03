@@ -48,18 +48,6 @@ class ContactAdapter(
             notifyDataSetChanged()
         }
 
-        holder.itemView.setOnLongClickListener {
-            AlertDialog.Builder(context)
-                .setTitle("연락처 삭제")
-                .setMessage("이 연락처를 삭제하시겠습니까?")
-                .setPositiveButton("예") { dialog, which ->
-                    deleteContact(position)
-                }
-                .setNegativeButton("아니오", null)
-                .show()
-            true
-        }
-
 
         holder.itemView.setOnClickListener {
             val clickTime = System.currentTimeMillis()
@@ -72,11 +60,6 @@ class ContactAdapter(
                 notifyDataSetChanged()
             }
             lastClickTime = clickTime
-        }
-
-        holder.callButton.setOnClickListener {
-            val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${contact.phoneNumber}"))
-            context.startActivity(intent)
         }
     }
 
@@ -138,7 +121,6 @@ class ContactAdapter(
         val nameTextView: TextView = itemView.findViewById(R.id.nameTextView)
         val phoneTextView: TextView = itemView.findViewById(R.id.phoneTextView)
         val scoreTextView: TextView = itemView.findViewById(R.id.scoreTextView)
-        val callButton: ImageButton = itemView.findViewById(R.id.callButton)
     }
 
     interface OnContactDeletedListener {
