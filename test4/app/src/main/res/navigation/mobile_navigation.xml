@@ -21,6 +21,6 @@
     <fragment
         android:id="@+id/navigation_notifications"
         android:name="com.example.test4.ui.notifications.NotificationsFragment"
-        android:label="Cat Game"
+        android:label="Meow"
         tools:layout="@layout/fragment_notifications" />
 </navigation>
