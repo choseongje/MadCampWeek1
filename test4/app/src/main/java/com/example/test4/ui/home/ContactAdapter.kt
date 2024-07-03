@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.test4.R
@@ -37,9 +38,9 @@ class ContactAdapter(
         holder.scoreTextView.text = "Score: ${contact.score}"
 
         if (contact.name == selectedContactName) {
-            holder.nameTextView.paintFlags = holder.nameTextView.paintFlags or Paint.UNDERLINE_TEXT_FLAG
+            holder.catIconImageView.visibility = View.VISIBLE
         } else {
-            holder.nameTextView.paintFlags = holder.nameTextView.paintFlags and Paint.UNDERLINE_TEXT_FLAG.inv()
+            holder.catIconImageView.visibility = View.GONE
         }
 
         holder.itemView.setOnClickListener {
@@ -121,6 +122,7 @@ class ContactAdapter(
         val nameTextView: TextView = itemView.findViewById(R.id.nameTextView)
         val phoneTextView: TextView = itemView.findViewById(R.id.phoneTextView)
         val scoreTextView: TextView = itemView.findViewById(R.id.scoreTextView)
+        val catIconImageView: ImageView = itemView.findViewById(R.id.catIconImageView)
     }
 
     interface OnContactDeletedListener {
