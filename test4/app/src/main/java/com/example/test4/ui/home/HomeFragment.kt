@@ -53,7 +53,6 @@ class HomeFragment : Fragment(), ContactAdapter.OnContactDeletedListener {
             showAddContactDialog()
         }
 
-        // ItemTouchHelper를 사용하여 스와이프 동작 구현
         val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
             override fun onMove(
                 recyclerView: RecyclerView,
@@ -74,6 +73,7 @@ class HomeFragment : Fragment(), ContactAdapter.OnContactDeletedListener {
                 adapter.notifyItemChanged(position) // 아이템 상태를 복원
             }
         })
+
         itemTouchHelper.attachToRecyclerView(recyclerView)
 
         return root
@@ -99,8 +99,30 @@ class HomeFragment : Fragment(), ContactAdapter.OnContactDeletedListener {
 
     private fun loadContactsFromSharedPreferences(): MutableList<Contact> {
         val gson = Gson()
-        val contactListJson = sharedPreferences.getString("contacts", "[]")
-        return gson.fromJson(contactListJson, object : TypeToken<MutableList<Contact>>() {}.type)
+        val contactListJson = sharedPreferences.getString("contacts", null)
+        return if (contactListJson == null) {
+            val dummyContacts = createDummyContacts()
+            saveContactsToSharedPreferences(dummyContacts)
+            dummyContacts
+        } else {
+            gson.fromJson(contactListJson, object : TypeToken<MutableList<Contact>>() {}.type)
+        }
+    }
+
+    private fun createDummyContacts(): MutableList<Contact> {
+        return mutableListOf(
+            Contact("조성제", "010-6786-2747", score = 5362),
+            Contact("엄마", "010-2345-6789", score = 42),
+            Contact("아빠", "010-3456-7890", score = 235)
+        )
+    }
+
+    private fun saveContactsToSharedPreferences(contacts: MutableList<Contact>) {
+        val gson = Gson()
+        val contactsJson = gson.toJson(contacts)
+        val editor = sharedPreferences.edit()
+        editor.putString("contacts", contactsJson)
+        editor.apply()
     }
 
     private fun showAddContactDialog() {
