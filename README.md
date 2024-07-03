@@ -23,7 +23,7 @@ YaOng은 연락처, 갤러리 관리와 함께 중독성 있는 터치 게임을
 
 화면 하단에 안드로이드에서 제공해주는`BottomNavigation`을 배치해서 다른 탭으로 넘어갈 수 있도록 구현했습니다.
 
-<div align="center>
+<div align="center">
 
 ![image](BottomNavigation.png)
 
@@ -51,7 +51,7 @@ YaOng은 연락처, 갤러리 관리와 함께 중독성 있는 터치 게임을
 
 <div align="center">
 
-![image](Contact Swipe.gif)
+  <img src="Swipe.gif" alt="Contact Swipe" width="240">
 
 </div>
 
@@ -91,7 +91,7 @@ YaOng은 연락처, 갤러리 관리와 함께 중독성 있는 터치 게임을
 
 <div align="center">
 
-![image](Meow Game.gif)
+<img src="Meow.gif" alt="Meow Game" width="240">
 
 </div>
 
