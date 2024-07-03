@@ -112,8 +112,11 @@ class HomeFragment : Fragment(), ContactAdapter.OnContactDeletedListener {
     private fun createDummyContacts(): MutableList<Contact> {
         return mutableListOf(
             Contact("조성제", "010-6786-2747", score = 5362),
-            Contact("엄마", "010-2345-6789", score = 42),
-            Contact("아빠", "010-3456-7890", score = 235)
+            Contact("이경민", "010-6367-3074", score = 1004),
+            Contact("김건민","010-7377-5276",score = 0),
+            Contact("하니", "010-2345-6789", score = 42),
+            Contact("카리나", "010-3456-7890", score = 235),
+            Contact("이재용", "010-1111-2222", score = 333)
         )
     }
 
