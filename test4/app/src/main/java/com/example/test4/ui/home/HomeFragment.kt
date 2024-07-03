@@ -159,7 +159,7 @@ class HomeFragment : Fragment(), ContactAdapter.OnContactDeletedListener {
     private fun showDeleteContactDialog(position: Int, contact: Contact) {
         AlertDialog.Builder(requireContext())
             .setTitle("연락처 삭제")
-            .setMessage("정말로 ${contact.name} 연락처를 삭제하시겠습니까?")
+            .setMessage("해당 연락처를 삭제하시겠습니까?")
             .setPositiveButton("예") { dialog, which ->
                 adapter.deleteContact(position)
             }

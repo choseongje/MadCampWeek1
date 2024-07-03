@@ -8,6 +8,7 @@ import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
@@ -25,6 +26,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.example.test4.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
@@ -81,7 +83,6 @@ class DashboardFragment : Fragment() {
 
         gridView = view.findViewById(R.id.gridview)
         imageAdapter = ImageAdapter(requireContext(), imageList, { imagePath ->
-            // 이미지 클릭 시 처리할 내용
         }, { imagePath ->
             showDeleteConfirmationDialog(imagePath)
         })
@@ -98,6 +99,13 @@ class DashboardFragment : Fragment() {
             } else {
                 Log.d("DashboardFragment", "Permissions not granted, requesting permissions")
             }
+        }
+
+        // 앱이 처음 실행되는지 확인하고 더미 데이터를 추가
+        val sharedPreferences = requireContext().getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        if (sharedPreferences.getBoolean("is_first_run", true)) {
+            addDummyData()
+            sharedPreferences.edit().putBoolean("is_first_run", false).apply()
         }
 
         return view
@@ -144,6 +152,12 @@ class DashboardFragment : Fragment() {
     private fun saveToInternalStorage(bitmapImage: Bitmap): String {
         val cw = ContextWrapper(context)
         val directory = cw.getDir("imageDir", Context.MODE_PRIVATE)
+
+        // 디렉토리 생성 확인
+        if (!directory.exists()) {
+            directory.mkdirs()
+        }
+
         val path = File(directory, "${System.currentTimeMillis()}.jpg")
 
         var fos: OutputStream? = null
@@ -176,10 +190,32 @@ class DashboardFragment : Fragment() {
         }
     }
 
+    private fun addDummyData() {
+        val dummyImages = listOf(
+            R.drawable.image1,
+            R.drawable.image2,
+            R.drawable.image3,
+            R.drawable.image4,
+            R.drawable.image5,
+            R.drawable.image6,
+            R.drawable.image7,
+            R.drawable.image8,
+            R.drawable.image9,
+        )
+
+        for (imageResId in dummyImages) {
+            val bitmap = BitmapFactory.decodeResource(resources, imageResId)
+            val path = saveToInternalStorage(bitmap)
+            imageList.add(path)
+        }
+        imageAdapter.notifyDataSetChanged()
+        saveImageList()
+    }
+
     private fun showDeleteConfirmationDialog(imagePath: String) {
         AlertDialog.Builder(requireContext())
             .setTitle("이미지 삭제")
-            .setMessage("이 이미지를 삭제하겠습니까?")
+            .setMessage("해당 이미지를 갤러리에서 삭제하시겠습니까?")
             .setPositiveButton("예") { dialog, _ ->
                 deleteImage(imagePath)
                 dialog.dismiss()
